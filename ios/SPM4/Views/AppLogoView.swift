@@ -49,10 +49,11 @@ struct SpinningLogoView: View {
 
 struct BottomLogoView: View {
     var body: some View {
-        Image("AppLogo")
+        Image("ChairLogo")
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: 180, height: 180)
+            .frame(width: 80, height: 80)
+            .opacity(0.5)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
     }

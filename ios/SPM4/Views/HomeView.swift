@@ -95,12 +95,16 @@ struct HomeView: View {
     }
 
     private var seatfolioLogo: some View {
-        Image("AppLogo")
-            .renderingMode(.template)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(height: 28)
-            .foregroundStyle(.white)
+        Text("Seatfolio")
+            .font(.system(size: 26, weight: .bold, design: .rounded))
+            .italic()
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [theme.textOnPrimary, theme.secondary.opacity(0.9)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
             .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
     }
 
