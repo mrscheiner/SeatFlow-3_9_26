@@ -51,9 +51,9 @@ struct BottomLogoView: View {
     var body: some View {
         Image("ChairLogo")
             .resizable()
+            .renderingMode(.original)
             .aspectRatio(contentMode: .fit)
-            .frame(width: 80, height: 80)
-            .opacity(0.5)
+            .frame(width: 140, height: 140)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
     }

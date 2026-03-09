@@ -110,10 +110,6 @@ struct HomeView: View {
 
     private var swipePassHeader: some View {
         VStack(spacing: 0) {
-            seatfolioLogo
-                .padding(.top, 12)
-                .padding(.bottom, 4)
-
             TabView(selection: Binding(
                 get: { store.activePassIndex },
                 set: { newIndex in
@@ -224,9 +220,6 @@ struct HomeView: View {
             showEditPass = true
         } label: {
             VStack(spacing: 12) {
-                seatfolioLogo
-                    .padding(.bottom, 2)
-
                 HStack(spacing: 14) {
                     if let logoURL = teamLogoURL, let url = URL(string: logoURL) {
                         AsyncImage(url: url) { phase in
