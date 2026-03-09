@@ -144,7 +144,7 @@ struct SettingsView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 44, height: 44)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("SeatFlow")
+                                Text("Seatfolio")
                                     .font(.body.weight(.semibold))
                                 Text("Version 4.0.0")
                                     .font(.caption)
@@ -175,7 +175,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Fan Disclaimer")
                                 .font(.subheadline.weight(.semibold))
-                            Text("This application is created for sports fans. The app is not affiliated with or endorsed by any sports league, team, or organization.")
+                            Text("Seatfolio is created for sports fans. Seatfolio is not affiliated with or endorsed by any sports league, team, or organization.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -186,7 +186,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Data Privacy")
                                 .font(.subheadline.weight(.semibold))
-                            Text("This application does not collect, store, or transmit any personal user data. All information entered into the app is stored locally on the user's device.")
+                            Text("Seatfolio does not collect, store, or transmit any personal user data. All information entered into Seatfolio is stored locally on the user's device.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -305,7 +305,7 @@ struct SettingsView: View {
 
     private func exportJSON() {
         guard let json = store.exportJSON() else { return }
-        let fileName = "seatflow_export_\(Date().formatted(.dateTime.year().month().day())).json"
+        let fileName = "seatfolio_export_\(Date().formatted(.dateTime.year().month().day())).json"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? json.write(to: url, atomically: true, encoding: .utf8)
         exportedFileURL = url
@@ -315,7 +315,7 @@ struct SettingsView: View {
 
     private func exportCSV() {
         guard let csv = store.exportCSV() else { return }
-        let fileName = "seatflow_export_\(Date().formatted(.dateTime.year().month().day())).csv"
+        let fileName = "seatfolio_export_\(Date().formatted(.dateTime.year().month().day())).csv"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? csv.write(to: url, atomically: true, encoding: .utf8)
         exportedFileURL = url

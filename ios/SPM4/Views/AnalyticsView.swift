@@ -224,6 +224,7 @@ struct AnalyticsView: View {
                     }
                     .frame(width: max(CGFloat(allSeasonMonths.count) * 72, 280), height: 220)
                 }
+                .defaultScrollAnchor(.trailing)
                 .contentMargins(.horizontal, 4)
             }
         }

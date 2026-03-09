@@ -39,7 +39,8 @@ nonisolated struct LeagueData {
             Team(id: "van", name: "Canucks", city: "Vancouver", abbreviation: "VAN", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/van.png", primaryColor: "00205B", secondaryColor: "00843D", apiAbbr: "VAN"),
             Team(id: "vgk", name: "Golden Knights", city: "Vegas", abbreviation: "VGK", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/vgk.png", primaryColor: "333F42", secondaryColor: "B4975A", apiAbbr: "VEG"),
             Team(id: "wsh", name: "Capitals", city: "Washington", abbreviation: "WSH", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/wsh.png", primaryColor: "041E42", secondaryColor: "C8102E", apiAbbr: "WAS"),
-            Team(id: "wpg", name: "Jets", city: "Winnipeg", abbreviation: "WPG", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/wpg.png", primaryColor: "041E42", secondaryColor: "004C97", apiAbbr: "WPG")
+            Team(id: "wpg", name: "Jets", city: "Winnipeg", abbreviation: "WPG", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/wpg.png", primaryColor: "041E42", secondaryColor: "004C97", apiAbbr: "WPG"),
+            Team(id: "uta", name: "Mammoth", city: "Utah", abbreviation: "UTA", logoURL: "https://a.espncdn.com/i/teamlogos/nhl/500/uta.png", primaryColor: "6CACE3", secondaryColor: "000000", apiAbbr: "UTA")
         ]
     )
 
