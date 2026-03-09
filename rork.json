@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "SPM4",
+      "name": "Seatfolio",
       "path": "ios",
       "framework": "swift"
     }

@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "105FC5792E9EAD3100EA8BCF"
-               BuildableName = "SPM4.app"
-               BlueprintName = "SPM4"
-               ReferencedContainer = "container:SPM4.xcodeproj">
+               BuildableName = "Seatfolio.app"
+               BlueprintName = "Seatfolio"
+               ReferencedContainer = "container:Seatfolio.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "105FC5792E9EAD3100EA8BCF"
-            BuildableName = "SPM4.app"
-            BlueprintName = "SPM4"
-            ReferencedContainer = "container:SPM4.xcodeproj">
+            BuildableName = "Seatfolio.app"
+            BlueprintName = "Seatfolio"
+            ReferencedContainer = "container:Seatfolio.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "105FC5792E9EAD3100EA8BCF"
-            BuildableName = "SPM4.app"
-            BlueprintName = "SPM4"
-            ReferencedContainer = "container:SPM4.xcodeproj">
+            BuildableName = "Seatfolio.app"
+            BlueprintName = "Seatfolio"
+            ReferencedContainer = "container:Seatfolio.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
