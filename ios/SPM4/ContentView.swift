@@ -35,7 +35,7 @@ struct ContentView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 160, height: 160)
                     .rotationEffect(.degrees(spinRotation))
-                Text("SeasonPass Manager")
+                Text("SeatFlow")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
             }

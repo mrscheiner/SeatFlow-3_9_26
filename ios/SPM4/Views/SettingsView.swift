@@ -144,7 +144,7 @@ struct SettingsView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 44, height: 44)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("SeasonPass Manager")
+                                Text("SeatFlow")
                                     .font(.body.weight(.semibold))
                                 Text("Version 4.0.0")
                                     .font(.caption)
@@ -305,7 +305,7 @@ struct SettingsView: View {
 
     private func exportJSON() {
         guard let json = store.exportJSON() else { return }
-        let fileName = "spm4_export_\(Date().formatted(.dateTime.year().month().day())).json"
+        let fileName = "seatflow_export_\(Date().formatted(.dateTime.year().month().day())).json"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? json.write(to: url, atomically: true, encoding: .utf8)
         exportedFileURL = url
@@ -315,7 +315,7 @@ struct SettingsView: View {
 
     private func exportCSV() {
         guard let csv = store.exportCSV() else { return }
-        let fileName = "spm4_export_\(Date().formatted(.dateTime.year().month().day())).csv"
+        let fileName = "seatflow_export_\(Date().formatted(.dateTime.year().month().day())).csv"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         try? csv.write(to: url, atomically: true, encoding: .utf8)
         exportedFileURL = url
