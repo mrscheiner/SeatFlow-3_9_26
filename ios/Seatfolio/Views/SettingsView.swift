@@ -320,12 +320,31 @@ struct SettingsView: View {
     }
 
     private func handleImport(_ result: Result<URL, Error>) {
-        guard case .success(let url) = result else { return }
-        guard url.startAccessingSecurityScopedResource() else { return }
-        defer { url.stopAccessingSecurityScopedResource() }
-        guard let data = try? String(contentsOf: url, encoding: .utf8) else { return }
-        if store.importJSON(data) {
-            store.showToastMessage("Data imported successfully")
+        switch result {
+        case .failure(let error):
+            store.showToastMessage("Import failed: \(error.localizedDescription)")
+            return
+        case .success(let url):
+            guard url.startAccessingSecurityScopedResource() else {
+                store.showToastMessage("Import failed: Could not access file")
+                return
+            }
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            let data: String
+            do {
+                data = try String(contentsOf: url, encoding: .utf8)
+            } catch {
+                store.showToastMessage("Import failed: Could not read file")
+                return
+            }
+
+            do {
+                let message = try store.importJSON(data)
+                store.showToastMessage(message)
+            } catch {
+                store.showToastMessage(error.localizedDescription)
+            }
         }
     }
 }

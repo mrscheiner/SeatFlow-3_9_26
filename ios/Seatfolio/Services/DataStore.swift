@@ -1,6 +1,22 @@
 import Foundation
 import SwiftUI
 
+nonisolated enum ImportError: Error, LocalizedError, Sendable {
+    case invalidData(String)
+    case noActivePass
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidData(let detail): return "Invalid import file: \(detail)"
+        case .noActivePass: return "No active season pass to import sales into"
+        }
+    }
+}
+
+nonisolated struct SalesWrapper: Codable, Sendable {
+    let sales: [Sale]
+}
+
 @Observable
 class DataStore {
     var seasonPasses: [SeasonPass] = []
@@ -393,20 +409,84 @@ class DataStore {
         return csv
     }
 
-    func importJSON(_ jsonString: String) -> Bool {
-        guard let data = jsonString.data(using: .utf8) else { return false }
+    func importJSON(_ jsonString: String) throws -> String {
+        guard let data = jsonString.data(using: .utf8) else {
+            throw ImportError.invalidData("File could not be read as text")
+        }
+
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        guard let pass = try? decoder.decode(SeasonPass.self, from: data) else { return false }
-        if let index = seasonPasses.firstIndex(where: { $0.id == pass.id }) {
-            seasonPasses[index] = pass
-        } else {
-            seasonPasses.append(pass)
-            activePassId = pass.id
+
+        // Try 1: Decode as a full SeasonPass
+        if let pass = try? decoder.decode(SeasonPass.self, from: data) {
+            if let index = seasonPasses.firstIndex(where: { $0.id == pass.id }) {
+                seasonPasses[index] = pass
+                saveImmediate()
+                return "Imported \(pass.sales.count) sales for \(pass.teamName)"
+            } else {
+                seasonPasses.append(pass)
+                activePassId = pass.id
+                saveImmediate()
+                return "Imported pass: \(pass.teamName) with \(pass.sales.count) sales"
+            }
         }
-        saveImmediate()
-        showToastMessage("Data imported")
-        return true
+
+        // Try 2: Decode as an array of Sales and merge into active pass
+        if let sales = try? decoder.decode([Sale].self, from: data) {
+            guard var pass = activePass else {
+                throw ImportError.noActivePass
+            }
+            let existingIds = Set(pass.sales.map { $0.id })
+            let newSales = sales.filter { !existingIds.contains($0.id) }
+            if newSales.isEmpty && !sales.isEmpty {
+                pass.sales = sales
+                updatePass(pass)
+                return "Updated \(sales.count) existing sales for \(pass.teamName)"
+            } else {
+                pass.sales.append(contentsOf: newSales)
+                updatePass(pass)
+                return "Added \(newSales.count) sales to \(pass.teamName)"
+            }
+        }
+
+        // Try 3: Decode as a wrapper object with a "sales" key
+        if let wrapper = try? decoder.decode(SalesWrapper.self, from: data) {
+            guard var pass = activePass else {
+                throw ImportError.noActivePass
+            }
+            let existingIds = Set(pass.sales.map { $0.id })
+            let newSales = wrapper.sales.filter { !existingIds.contains($0.id) }
+            if newSales.isEmpty && !wrapper.sales.isEmpty {
+                pass.sales = wrapper.sales
+                updatePass(pass)
+                return "Updated \(wrapper.sales.count) existing sales for \(pass.teamName)"
+            } else {
+                pass.sales.append(contentsOf: newSales)
+                updatePass(pass)
+                return "Added \(newSales.count) sales to \(pass.teamName)"
+            }
+        }
+
+        // Try 4: Get the actual decode error for the SeasonPass attempt
+        do {
+            _ = try decoder.decode(SeasonPass.self, from: data)
+            throw ImportError.invalidData("Unknown decode issue")
+        } catch let error as DecodingError {
+            switch error {
+            case .keyNotFound(let key, _):
+                throw ImportError.invalidData("Missing field: \(key.stringValue)")
+            case .typeMismatch(let type, let context):
+                throw ImportError.invalidData("Wrong type for \(context.codingPath.map { $0.stringValue }.joined(separator: ".")): expected \(type)")
+            case .valueNotFound(_, let context):
+                throw ImportError.invalidData("Null value at \(context.codingPath.map { $0.stringValue }.joined(separator: "."))")
+            case .dataCorrupted(let context):
+                throw ImportError.invalidData("Corrupted data: \(context.debugDescription)")
+            @unknown default:
+                throw ImportError.invalidData(error.localizedDescription)
+            }
+        } catch {
+            throw ImportError.invalidData(error.localizedDescription)
+        }
     }
 
     func salesForGame(_ gameId: String) -> [Sale] {
