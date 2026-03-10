@@ -18,7 +18,7 @@ struct AppLogoView: View {
 struct SpinningLogoView: View {
     let size: CGFloat
     let message: String
-    @State private var isPulsing: Bool = false
+    @State private var isSpinning: Bool = false
 
     init(size: CGFloat = 80, message: String = "Loading...") {
         self.size = size
@@ -31,14 +31,17 @@ struct SpinningLogoView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: size * 1.25, height: size * 1.25)
-                .scaleEffect(isPulsing ? 1.06 : 0.94)
-                .opacity(isPulsing ? 1.0 : 0.7)
+                .clipShape(.rect(cornerRadius: size * 0.22))
+                .rotation3DEffect(
+                    .degrees(isSpinning ? 360 : 0),
+                    axis: (x: 0, y: 1, z: 0)
+                )
                 .animation(
-                    .easeInOut(duration: 1.2).repeatForever(autoreverses: true),
-                    value: isPulsing
+                    .linear(duration: 2.0).repeatForever(autoreverses: false),
+                    value: isSpinning
                 )
                 .onAppear {
-                    isPulsing = true
+                    isSpinning = true
                 }
 
             if !message.isEmpty {
@@ -51,13 +54,27 @@ struct SpinningLogoView: View {
 }
 
 struct BottomLogoView: View {
+    @State private var isSpinning: Bool = false
+
     var body: some View {
         Image("SeatfolioFullLogo")
             .resizable()
             .renderingMode(.original)
             .aspectRatio(contentMode: .fit)
             .frame(width: 200, height: 200)
+            .clipShape(.rect(cornerRadius: 44))
+            .rotation3DEffect(
+                .degrees(isSpinning ? 360 : 0),
+                axis: (x: 0, y: 1, z: 0)
+            )
+            .animation(
+                .linear(duration: 3.0).repeatForever(autoreverses: false),
+                value: isSpinning
+            )
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
+            .onAppear {
+                isSpinning = true
+            }
     }
 }
