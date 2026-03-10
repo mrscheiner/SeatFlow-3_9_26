@@ -18,7 +18,7 @@ struct AppLogoView: View {
 struct SpinningLogoView: View {
     let size: CGFloat
     let message: String
-    @State private var rotation: Double = 0
+    @State private var isPulsing: Bool = false
 
     init(size: CGFloat = 56, message: String = "Loading...") {
         self.size = size
@@ -27,15 +27,18 @@ struct SpinningLogoView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Image("AppLogo")
+            Image("SeatfolioFullLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: size, height: size)
-                .rotationEffect(.degrees(rotation))
+                .frame(width: size * 2, height: size * 2)
+                .scaleEffect(isPulsing ? 1.06 : 0.94)
+                .opacity(isPulsing ? 1.0 : 0.7)
+                .animation(
+                    .easeInOut(duration: 1.2).repeatForever(autoreverses: true),
+                    value: isPulsing
+                )
                 .onAppear {
-                    withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                        rotation = 360
-                    }
+                    isPulsing = true
                 }
 
             if !message.isEmpty {
@@ -49,11 +52,11 @@ struct SpinningLogoView: View {
 
 struct BottomLogoView: View {
     var body: some View {
-        Image("ChairLogo")
+        Image("SeatfolioFullLogo")
             .resizable()
             .renderingMode(.original)
             .aspectRatio(contentMode: .fit)
-            .frame(width: 140, height: 140)
+            .frame(width: 260, height: 260)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
     }

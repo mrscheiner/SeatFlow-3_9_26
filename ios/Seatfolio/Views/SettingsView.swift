@@ -139,10 +139,6 @@ struct SettingsView: View {
 
                     Section("About") {
                         HStack(spacing: 12) {
-                            Image("AppLogo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 44, height: 44)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Seatfolio")
                                     .font(.body.weight(.semibold))

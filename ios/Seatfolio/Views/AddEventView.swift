@@ -10,7 +10,7 @@ struct AddEventView: View {
     @State private var section: String = ""
     @State private var row: String = ""
     @State private var seats: String = ""
-    @State private var seatCount: String = "1"
+    @State private var seatCount: String = ""
     @State private var pricePaid: String = ""
     @State private var priceSold: String = ""
     @State private var status: EventStatus = .pending

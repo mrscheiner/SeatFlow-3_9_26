@@ -352,6 +352,25 @@ struct ScheduleGameCard: View {
         TimezoneHelper.formatGameTime(game.date, teamId: teamId)
     }
 
+    private var adaptiveTextColor: Color {
+        theme.primary.isLightColor ? .black : .white
+    }
+
+    private var adaptiveSecondaryTextColor: Color {
+        theme.primary.isLightColor ? .black.opacity(0.7) : .white.opacity(0.9)
+    }
+
+    private var adaptiveTertiaryTextColor: Color {
+        theme.primary.isLightColor ? .black.opacity(0.5) : .white.opacity(0.7)
+    }
+
+    private var fullOpponentName: String {
+        if !game.opponentAbbr.isEmpty {
+            return LeagueData.teamNameForAPIAbbr(game.opponentAbbr, leagueId: leagueId)
+        }
+        return game.opponent
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Button {
@@ -365,7 +384,7 @@ struct ScheduleGameCard: View {
                         Text(game.date.formatted(.dateTime.day()))
                             .font(.title.bold())
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(adaptiveTextColor)
                     .frame(width: 52, height: 56)
 
                     VStack(alignment: .leading, spacing: 5) {
@@ -375,7 +394,7 @@ struct ScheduleGameCard: View {
                                     if let image = phase.image {
                                         image.resizable().aspectRatio(contentMode: .fit)
                                     } else {
-                                        Circle().fill(.white.opacity(0.3))
+                                        Circle().fill(adaptiveTextColor.opacity(0.3))
                                     }
                                 }
                                 .frame(width: 28, height: 28)
@@ -384,31 +403,31 @@ struct ScheduleGameCard: View {
                             if !game.displayLabel.isEmpty {
                                 Text("#\(game.displayLabel)")
                                     .font(.caption2.bold())
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(adaptiveTextColor)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(.white.opacity(0.2))
+                                    .background(adaptiveTextColor.opacity(0.2))
                                     .clipShape(Capsule())
                             }
                         }
 
-                        Text(game.opponent)
+                        Text(fullOpponentName)
                             .font(.headline.weight(.bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(adaptiveTextColor)
                             .lineLimit(1)
 
                         Text(localTime)
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.9))
+                            .foregroundStyle(adaptiveSecondaryTextColor)
 
                         HStack(spacing: 8) {
                             Text("\(ticketsSold) sold • \(ticketsAvailable) avail")
                                 .font(.caption.weight(.medium))
-                                .foregroundStyle(.white.opacity(0.9))
+                                .foregroundStyle(adaptiveSecondaryTextColor)
                             if totalRevenue > 0 {
                                 Text(totalRevenue, format: .currency(code: "USD"))
                                     .font(.caption.weight(.bold))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(adaptiveTextColor)
                             }
                         }
                     }
@@ -424,7 +443,7 @@ struct ScheduleGameCard: View {
 
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .font(.caption2.weight(.bold))
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(adaptiveTertiaryTextColor)
                     }
                 }
                 .padding(16)
@@ -443,15 +462,15 @@ struct ScheduleGameCard: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Sec \(sale.section) • Row \(sale.row)")
                                             .font(.caption.weight(.medium))
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle(adaptiveTextColor)
                                         Text("Seats: \(sale.seats)")
                                             .font(.caption2)
-                                            .foregroundStyle(.white.opacity(0.8))
+                                            .foregroundStyle(adaptiveSecondaryTextColor)
                                     }
                                     Spacer()
                                     Text(sale.price, format: .currency(code: "USD"))
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(adaptiveTextColor)
                                     Button {
                                         onToggleStatus(sale)
                                     } label: {
@@ -470,14 +489,14 @@ struct ScheduleGameCard: View {
                                     } label: {
                                         Image(systemName: "pencil.circle.fill")
                                             .font(.title3)
-                                            .foregroundStyle(.white.opacity(0.8))
+                                            .foregroundStyle(adaptiveSecondaryTextColor)
                                     }
                                     Button {
                                         onDeleteSale(sale)
                                     } label: {
                                         Image(systemName: "trash.circle.fill")
                                             .font(.title3)
-                                            .foregroundStyle(.white.opacity(0.6))
+                                            .foregroundStyle(adaptiveTertiaryTextColor)
                                     }
                                 }
                                 .padding(.horizontal, 12)
@@ -490,7 +509,7 @@ struct ScheduleGameCard: View {
                         VStack(spacing: 10) {
                             Text(editingSaleId != nil ? "Edit Sale" : "Record Sale")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(.white.opacity(0.9))
+                                .foregroundStyle(adaptiveSecondaryTextColor)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             if seatPairs.count > 1 {
@@ -501,13 +520,13 @@ struct ScheduleGameCard: View {
                                         } label: {
                                             Text("Sec \(pair.section)")
                                                 .font(.caption2.weight(.semibold))
-                                                .foregroundStyle(selectedSeatPairId == pair.id ? .white : .white.opacity(0.6))
+                                                .foregroundStyle(selectedSeatPairId == pair.id ? adaptiveTextColor : adaptiveTertiaryTextColor)
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 6)
                                                 .background(
                                                     selectedSeatPairId == pair.id
-                                                        ? Color.white.opacity(0.25)
-                                                        : Color.white.opacity(0.1)
+                                                        ? adaptiveTextColor.opacity(0.25)
+                                                        : adaptiveTextColor.opacity(0.1)
                                                 )
                                                 .clipShape(Capsule())
                                         }
@@ -519,28 +538,28 @@ struct ScheduleGameCard: View {
                                 HStack {
                                     Text("$")
                                         .font(.subheadline.weight(.bold))
-                                        .foregroundStyle(.white.opacity(0.7))
+                                        .foregroundStyle(adaptiveTertiaryTextColor)
                                     TextField("Amount", text: $saleAmount)
                                         .keyboardType(.decimalPad)
                                         .font(.subheadline)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(adaptiveTextColor)
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
-                                .background(Color.white.opacity(0.15))
+                                .background(adaptiveTextColor.opacity(0.15))
                                 .clipShape(.rect(cornerRadius: 10))
 
                                 HStack(spacing: 4) {
                                     Text("2")
                                         .font(.caption.weight(.bold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(adaptiveTextColor)
                                     Image(systemName: "ticket.fill")
                                         .font(.caption2)
-                                        .foregroundStyle(.white.opacity(0.8))
+                                        .foregroundStyle(adaptiveSecondaryTextColor)
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 10)
-                                .background(Color.white.opacity(0.15))
+                                .background(adaptiveTextColor.opacity(0.15))
                                 .clipShape(.rect(cornerRadius: 10))
                             }
 
@@ -553,7 +572,7 @@ struct ScheduleGameCard: View {
                                     HStack(spacing: 0) {
                                         Text("Pending")
                                             .font(.caption.weight(.bold))
-                                            .foregroundStyle(!salePaid ? .white : .white.opacity(0.5))
+                                            .foregroundStyle(!salePaid ? .white : adaptiveTertiaryTextColor)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 8)
                                             .background(!salePaid ? Color.red.opacity(0.6) : Color.clear)
@@ -561,13 +580,13 @@ struct ScheduleGameCard: View {
 
                                         Text("Paid")
                                             .font(.caption.weight(.bold))
-                                            .foregroundStyle(salePaid ? .white : .white.opacity(0.5))
+                                            .foregroundStyle(salePaid ? .white : adaptiveTertiaryTextColor)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 8)
                                             .background(salePaid ? Color.green.opacity(0.6) : Color.clear)
                                             .clipShape(.rect(cornerRadius: 8))
                                     }
-                                    .background(Color.white.opacity(0.1))
+                                    .background(adaptiveTextColor.opacity(0.1))
                                     .clipShape(.rect(cornerRadius: 10))
                                 }
                                 .buttonStyle(.plain)

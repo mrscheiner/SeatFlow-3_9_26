@@ -29,20 +29,16 @@ struct ContentView: View {
         ZStack {
             Color(hex: "001F3F")
                 .ignoresSafeArea()
-            VStack(spacing: 28) {
-                Image("ChairLogo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 160, height: 160)
-                    .rotationEffect(.degrees(spinRotation))
-                Text("Seatfolio")
-                    .font(.title2.bold())
-                    .foregroundStyle(.white)
-            }
+            Image("SeatfolioFullLogo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 220, height: 220)
+                .scaleEffect(spinRotation == 0 ? 0.92 : 1.05)
+                .opacity(spinRotation == 0 ? 0.75 : 1.0)
         }
         .onAppear {
-            withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                spinRotation = 360
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                spinRotation = 1
             }
         }
     }

@@ -453,6 +453,19 @@ struct RecentSaleCard: View {
         games.first { $0.id == sale.gameId }
     }
 
+    private var fullOpponentName: String {
+        let effectiveLeague = sale.leagueId.isEmpty ? leagueId : sale.leagueId
+        if !sale.opponentAbbr.isEmpty {
+            let name = LeagueData.teamNameForAPIAbbr(sale.opponentAbbr, leagueId: effectiveLeague)
+            if name != sale.opponentAbbr { return name }
+        }
+        if let game, !game.opponentAbbr.isEmpty {
+            let name = LeagueData.teamNameForAPIAbbr(game.opponentAbbr, leagueId: effectiveLeague)
+            if name != game.opponentAbbr { return name }
+        }
+        return sale.opponent.isEmpty ? (game?.opponent ?? "Unknown") : sale.opponent
+    }
+
     private var opponentLogoURL: String? {
         let effectiveLeague = sale.leagueId.isEmpty ? leagueId : sale.leagueId
         if !sale.opponentAbbr.isEmpty,
@@ -503,7 +516,7 @@ struct RecentSaleCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(sale.opponent.isEmpty ? "Unknown" : sale.opponent)
+                    Text(fullOpponentName)
                         .font(.headline)
                     Text("Sec \(sale.section) • Row \(sale.row) • Seats \(sale.seats)")
                         .font(.caption)

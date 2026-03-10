@@ -35,6 +35,12 @@ struct GameDetailView: View {
         return LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: pass.leagueId)
     }
 
+    private var fullOpponentName: String {
+        guard let pass = store.activePass, !game.opponentAbbr.isEmpty else { return game.opponent }
+        let name = LeagueData.teamNameForAPIAbbr(game.opponentAbbr, leagueId: pass.leagueId)
+        return name == game.opponentAbbr ? game.opponent : name
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -102,7 +108,7 @@ struct GameDetailView: View {
                             .font(.caption.weight(.bold))
                             .foregroundStyle(.white.opacity(0.7))
                     }
-                    Text("vs \(game.opponent)")
+                    Text("vs \(fullOpponentName)")
                         .font(.title3.bold())
                         .foregroundStyle(.white)
                     Text(game.formattedFullDate)
@@ -306,13 +312,19 @@ struct GameSaleEntryView: View {
 
     private var theme: TeamTheme { store.currentTheme }
 
+    private var gameSaleFullOpponentName: String {
+        guard let pass = store.activePass, !game.opponentAbbr.isEmpty else { return game.opponent }
+        let name = LeagueData.teamNameForAPIAbbr(game.opponentAbbr, leagueId: pass.leagueId)
+        return name == game.opponentAbbr ? game.opponent : name
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("vs \(game.opponent)")
+                            Text("vs \(gameSaleFullOpponentName)")
                                 .font(.headline)
                             Text(game.formattedFullDate)
                                 .font(.caption)
