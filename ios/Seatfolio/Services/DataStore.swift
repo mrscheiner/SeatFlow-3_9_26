@@ -17,6 +17,62 @@ nonisolated struct SalesWrapper: Codable, Sendable {
     let sales: [Sale]
 }
 
+nonisolated struct ExternalBackup: Codable, Sendable {
+    let version: String?
+    let createdAtISO: String?
+    let activeSeasonPassId: String?
+    let seasonPasses: [ExternalSeasonPass]
+}
+
+nonisolated struct ExternalSeasonPass: Codable, Sendable {
+    let id: String
+    let leagueId: String
+    let teamId: String
+    let teamName: String
+    let seasonLabel: String
+    let seatPairs: [ExternalSeatPair]
+    let salesData: [String: [String: ExternalSale]]?
+    let games: [ExternalGame]?
+}
+
+nonisolated struct ExternalSeatPair: Codable, Sendable {
+    let id: String
+    let section: String
+    let row: String
+    let seats: String
+    let seasonCost: Double?
+    let cost: Double?
+
+    var resolvedCost: Double {
+        seasonCost ?? cost ?? 0
+    }
+}
+
+nonisolated struct ExternalSale: Codable, Sendable {
+    let id: String
+    let gameId: String
+    let pairId: String?
+    let section: String
+    let row: String
+    let seats: String
+    let seatCount: Int?
+    let price: Double
+    let paymentStatus: String?
+    let status: String?
+    let soldDate: String
+    let opponentLogo: String?
+}
+
+nonisolated struct ExternalGame: Codable, Sendable {
+    let id: String
+    let date: String?
+    let opponent: String?
+    let time: String?
+    let type: String?
+    let gameNumber: String?
+    let dateTimeISO: String?
+}
+
 @Observable
 class DataStore {
     var seasonPasses: [SeasonPass] = []
@@ -417,7 +473,12 @@ class DataStore {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        // Try 1: Decode as a full SeasonPass
+        // Try 1: External backup format (nested salesData dict, seasonCost, etc.)
+        if let backup = try? decoder.decode(ExternalBackup.self, from: data), !backup.seasonPasses.isEmpty {
+            return try importExternalBackup(backup)
+        }
+
+        // Try 2: Decode as a full SeasonPass (native format)
         if let pass = try? decoder.decode(SeasonPass.self, from: data) {
             if let index = seasonPasses.firstIndex(where: { $0.id == pass.id }) {
                 seasonPasses[index] = pass
@@ -431,7 +492,7 @@ class DataStore {
             }
         }
 
-        // Try 2: Decode as an array of Sales and merge into active pass
+        // Try 3: Decode as an array of Sales and merge into active pass
         if let sales = try? decoder.decode([Sale].self, from: data) {
             guard var pass = activePass else {
                 throw ImportError.noActivePass
@@ -449,7 +510,7 @@ class DataStore {
             }
         }
 
-        // Try 3: Decode as a wrapper object with a "sales" key
+        // Try 4: Decode as a wrapper object with a "sales" key
         if let wrapper = try? decoder.decode(SalesWrapper.self, from: data) {
             guard var pass = activePass else {
                 throw ImportError.noActivePass
@@ -467,26 +528,181 @@ class DataStore {
             }
         }
 
-        // Try 4: Get the actual decode error for the SeasonPass attempt
-        do {
-            _ = try decoder.decode(SeasonPass.self, from: data)
-            throw ImportError.invalidData("Unknown decode issue")
-        } catch let error as DecodingError {
-            switch error {
-            case .keyNotFound(let key, _):
-                throw ImportError.invalidData("Missing field: \(key.stringValue)")
-            case .typeMismatch(let type, let context):
-                throw ImportError.invalidData("Wrong type for \(context.codingPath.map { $0.stringValue }.joined(separator: ".")): expected \(type)")
-            case .valueNotFound(_, let context):
-                throw ImportError.invalidData("Null value at \(context.codingPath.map { $0.stringValue }.joined(separator: "."))")
-            case .dataCorrupted(let context):
-                throw ImportError.invalidData("Corrupted data: \(context.debugDescription)")
-            @unknown default:
-                throw ImportError.invalidData(error.localizedDescription)
+        throw ImportError.invalidData("Unrecognized file format. Expected a Seatfolio backup or sales data file.")
+    }
+
+    private func importExternalBackup(_ backup: ExternalBackup) throws -> String {
+        var totalSalesImported = 0
+        var passesImported: [String] = []
+
+        for extPass in backup.seasonPasses {
+            let seatPairs = extPass.seatPairs.map { sp in
+                SeatPair(id: sp.id, section: sp.section, row: sp.row, seats: sp.seats, cost: sp.resolvedCost)
             }
-        } catch {
-            throw ImportError.invalidData(error.localizedDescription)
+
+            let sales = flattenSalesData(extPass.salesData, leagueId: extPass.leagueId, games: extPass.games)
+            let games = convertExternalGames(extPass.games, leagueId: extPass.leagueId)
+
+            if let index = seasonPasses.firstIndex(where: {
+                $0.teamId == extPass.teamId && $0.leagueId == extPass.leagueId
+            }) {
+                var existingPass = seasonPasses[index]
+                existingPass.seatPairs = seatPairs
+                existingPass.sales = sales
+                if !games.isEmpty {
+                    existingPass.games = games
+                }
+                seasonPasses[index] = existingPass
+                totalSalesImported += sales.count
+                passesImported.append(existingPass.teamName)
+            } else {
+                let newPass = SeasonPass(
+                    id: extPass.id,
+                    leagueId: extPass.leagueId,
+                    teamId: extPass.teamId,
+                    teamName: extPass.teamName,
+                    seasonLabel: extPass.seasonLabel,
+                    seatPairs: seatPairs,
+                    sales: sales,
+                    games: games
+                )
+                seasonPasses.append(newPass)
+                activePassId = newPass.id
+                totalSalesImported += sales.count
+                passesImported.append(newPass.teamName)
+            }
         }
+
+        saveImmediate()
+
+        let teamNames = passesImported.joined(separator: ", ")
+        return "Imported \(totalSalesImported) sales for \(teamNames)"
+    }
+
+    private func flattenSalesData(_ salesData: [String: [String: ExternalSale]]?, leagueId: String, games: [ExternalGame]?) -> [Sale] {
+        guard let salesData else { return [] }
+
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let isoFormatterNoFrac = ISO8601DateFormatter()
+        isoFormatterNoFrac.formatOptions = [.withInternetDateTime]
+
+        let gameDateMap: [String: Date] = {
+            guard let games else { return [:] }
+            var map: [String: Date] = [:]
+            for game in games {
+                if let iso = game.dateTimeISO,
+                   let d = isoFormatter.date(from: iso) ?? isoFormatterNoFrac.date(from: iso) {
+                    map[game.id] = d
+                }
+            }
+            return map
+        }()
+
+        let gameOpponentMap: [String: String] = {
+            guard let games else { return [:] }
+            var map: [String: String] = [:]
+            for game in games {
+                if let opp = game.opponent {
+                    map[game.id] = opp.replacingOccurrences(of: "vs ", with: "")
+                }
+            }
+            return map
+        }()
+
+        var result: [Sale] = []
+
+        for (gameId, pairSales) in salesData {
+            for (_, extSale) in pairSales {
+                let soldDate = isoFormatter.date(from: extSale.soldDate)
+                    ?? isoFormatterNoFrac.date(from: extSale.soldDate)
+                    ?? Date()
+
+                let gameDate = gameDateMap[gameId] ?? soldDate
+                let opponent = gameOpponentMap[gameId] ?? ""
+
+                let statusRaw = extSale.paymentStatus ?? extSale.status ?? "Pending"
+                let status: SaleStatus = statusRaw.lowercased() == "paid" ? .paid : .pending
+
+                let sale = Sale(
+                    id: extSale.id,
+                    gameId: gameId,
+                    opponent: opponent,
+                    opponentAbbr: "",
+                    leagueId: leagueId,
+                    gameDate: gameDate,
+                    section: extSale.section,
+                    row: extSale.row,
+                    seats: extSale.seats,
+                    price: extSale.price,
+                    soldDate: soldDate,
+                    status: status
+                )
+                result.append(sale)
+            }
+        }
+
+        return result.sorted { $0.gameDate < $1.gameDate }
+    }
+
+    private func convertExternalGames(_ games: [ExternalGame]?, leagueId: String) -> [Game] {
+        guard let games else { return [] }
+
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let isoFormatterNoFrac = ISO8601DateFormatter()
+        isoFormatterNoFrac.formatOptions = [.withInternetDateTime]
+
+        var result: [Game] = []
+
+        for extGame in games {
+            let date: Date = {
+                if let iso = extGame.dateTimeISO {
+                    return isoFormatter.date(from: iso) ?? isoFormatterNoFrac.date(from: iso) ?? Date()
+                }
+                return Date()
+            }()
+
+            let opponent = (extGame.opponent ?? "").replacingOccurrences(of: "vs ", with: "")
+
+            let gameType: GameType = {
+                let t = (extGame.type ?? "").lowercased()
+                if t.contains("pre") { return .preseason }
+                if t.contains("play") || t.contains("post") { return .playoff }
+                return .regular
+            }()
+
+            let gameLabel: String = {
+                guard let num = extGame.gameNumber else { return "" }
+                let trimmed = num.trimmingCharacters(in: .whitespaces)
+                if trimmed.lowercased().hasPrefix("ps") {
+                    return "PS\(trimmed.dropFirst(2).trimmingCharacters(in: .whitespaces))"
+                }
+                return trimmed
+            }()
+
+            let gameNumber: Int = {
+                guard let num = extGame.gameNumber else { return 0 }
+                let digits = num.filter { $0.isNumber }
+                return Int(digits) ?? 0
+            }()
+
+            let game = Game(
+                id: extGame.id,
+                date: date,
+                opponent: opponent,
+                time: extGame.time ?? "",
+                gameNumber: gameNumber,
+                gameLabel: gameLabel,
+                type: gameType,
+                isHome: true
+            )
+            result.append(game)
+        }
+
+        return result.sorted { $0.date < $1.date }
     }
 
     func salesForGame(_ gameId: String) -> [Sale] {
