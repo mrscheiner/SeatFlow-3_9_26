@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(DataStore.self) private var store
     @State private var isLaunching: Bool = true
-    @State private var spinRotation: Double = 0
+    @State private var splashRotation: Double = 0
 
     var body: some View {
         Group {
@@ -33,12 +33,11 @@ struct ContentView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 170, height: 170)
-                .scaleEffect(spinRotation == 0 ? 0.92 : 1.05)
-                .opacity(spinRotation == 0 ? 0.75 : 1.0)
+                .rotationEffect(.degrees(splashRotation))
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                spinRotation = 1
+            withAnimation(.easeInOut(duration: 1.2)) {
+                splashRotation = 360
             }
         }
     }
