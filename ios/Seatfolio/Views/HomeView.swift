@@ -468,29 +468,27 @@ struct RecentSaleCard: View {
 
     private var opponentLogoURL: String? {
         let effectiveLeague = sale.leagueId.isEmpty ? leagueId : sale.leagueId
-        if !sale.opponentAbbr.isEmpty,
-           let url = LeagueData.logoURLForAPIAbbr(sale.opponentAbbr, leagueId: effectiveLeague) {
-            return url
+        if !sale.opponentAbbr.isEmpty {
+            if let url = LeagueData.logoURLForAPIAbbr(sale.opponentAbbr, leagueId: effectiveLeague) {
+                return url
+            }
+            if let url = LeagueData.logoURLForAPIAbbrAnyLeague(sale.opponentAbbr) {
+                return url
+            }
         }
-        if let game, !game.opponentAbbr.isEmpty,
-           let url = LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: effectiveLeague) {
-            return url
+        if let game, !game.opponentAbbr.isEmpty {
+            if let url = LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: effectiveLeague) {
+                return url
+            }
+            if let url = LeagueData.logoURLForAPIAbbrAnyLeague(game.opponentAbbr) {
+                return url
+            }
         }
-        if let found = findLogoByName(sale.opponent.isEmpty ? (game?.opponent ?? "") : sale.opponent, leagueId: effectiveLeague) {
-            return found
+        let name = sale.opponent.isEmpty ? (game?.opponent ?? "") : sale.opponent
+        if let url = LeagueData.logoURLByName(name) {
+            return url
         }
         return nil
-    }
-
-    private func findLogoByName(_ name: String, leagueId: String) -> String? {
-        guard !name.isEmpty, let league = LeagueData.league(for: leagueId) else { return nil }
-        let match = league.teams.first {
-            name.localizedStandardContains($0.name) ||
-            name.localizedStandardContains($0.city) ||
-            $0.name.localizedStandardContains(name) ||
-            "\($0.city) \($0.name)".localizedStandardContains(name)
-        }
-        return match?.logoURL
     }
 
     var body: some View {

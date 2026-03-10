@@ -221,4 +221,30 @@ nonisolated struct LeagueData {
     static func logoURLForAPIAbbr(_ abbr: String, leagueId: String) -> String? {
         teamByAPIAbbr(abbr, leagueId: leagueId)?.logoURL
     }
+
+    static func logoURLForAPIAbbrAnyLeague(_ abbr: String) -> String? {
+        guard !abbr.isEmpty else { return nil }
+        for league in allLeagues {
+            if let team = league.teams.first(where: { $0.apiAbbr == abbr }) {
+                return team.logoURL
+            }
+        }
+        return nil
+    }
+
+    static func logoURLByName(_ name: String) -> String? {
+        guard !name.isEmpty else { return nil }
+        let lowered = name.lowercased()
+        for league in allLeagues {
+            if let team = league.teams.first(where: {
+                lowered.contains($0.name.lowercased()) ||
+                lowered.contains($0.city.lowercased()) ||
+                $0.name.lowercased().contains(lowered) ||
+                "\($0.city) \($0.name)".lowercased().contains(lowered)
+            }) {
+                return team.logoURL
+            }
+        }
+        return nil
+    }
 }
