@@ -30,12 +30,12 @@ struct ContentView: View {
             Color(hex: "001F3F")
                 .ignoresSafeArea()
             VStack(spacing: 28) {
-                Image("AppLogo")
+                Image("ChairLogo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 160, height: 160)
                     .rotationEffect(.degrees(spinRotation))
-                Text("SeatFlow")
+                Text("Seatfolio")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
             }

@@ -1,8 +1,8 @@
 import SwiftUI
 
 @main
-struct SPM4App: App {
-    @State private var store = DataStore()
+struct SeatfolioApp: App {
+    @State private var store: DataStore = DataStore()
 
     var body: some Scene {
         WindowGroup {
