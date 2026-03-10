@@ -353,15 +353,15 @@ struct ScheduleGameCard: View {
     }
 
     private var adaptiveTextColor: Color {
-        theme.primary.isLightColor ? .black : .white
+        .white
     }
 
     private var adaptiveSecondaryTextColor: Color {
-        theme.primary.isLightColor ? .black.opacity(0.7) : .white.opacity(0.9)
+        .white.opacity(0.9)
     }
 
     private var adaptiveTertiaryTextColor: Color {
-        theme.primary.isLightColor ? .black.opacity(0.5) : .white.opacity(0.7)
+        .white.opacity(0.7)
     }
 
     private var fullOpponentName: String {
