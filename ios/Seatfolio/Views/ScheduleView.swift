@@ -9,6 +9,8 @@ struct ScheduleView: View {
     @State private var salePaid = false
     @State private var selectedSeatPairId = ""
     @State private var editingSaleInline: Sale?
+    @FocusState private var saleAmountFocused: Bool
+    @State private var pendingFocus = false
 
     private enum GameTypeFilter: String, CaseIterable {
         case all = "All"
@@ -104,6 +106,7 @@ struct ScheduleView: View {
                                                 editingSaleInline = nil
                                                 saleAmount = ""
                                                 salePaid = false
+                                                pendingFocus = true
                                                 if seatPairs.count == 1 {
                                                     selectedSeatPairId = seatPairs[0].id
                                                 } else {
@@ -115,6 +118,7 @@ struct ScheduleView: View {
                                     saleAmount: $saleAmount,
                                     salePaid: $salePaid,
                                     selectedSeatPairId: $selectedSeatPairId,
+                                    saleAmountFocused: $saleAmountFocused,
                                     onSave: {
                                         if let editing = editingSaleInline {
                                             updateExistingSale(editing, for: game)
@@ -137,6 +141,15 @@ struct ScheduleView: View {
                                     editingSaleId: editingSaleInline?.id
                                 )
                                 .padding(.horizontal, 16)
+                                .onChange(of: expandedGameId) { _, newValue in
+                                    if newValue == game.id && pendingFocus {
+                                        Task { @MainActor in
+                                            try? await Task.sleep(for: .milliseconds(400))
+                                            saleAmountFocused = true
+                                            pendingFocus = false
+                                        }
+                                    }
+                                }
                             }
                         }
                         .padding(.vertical, 10)
@@ -318,6 +331,7 @@ struct ScheduleGameCard: View {
     @Binding var saleAmount: String
     @Binding var salePaid: Bool
     @Binding var selectedSeatPairId: String
+    var saleAmountFocused: FocusState<Bool>.Binding
     let onSave: () -> Void
     let onToggleStatus: (Sale) -> Void
     let onEditSale: (Sale) -> Void
@@ -540,6 +554,7 @@ struct ScheduleGameCard: View {
                                         .font(.subheadline.weight(.bold))
                                         .foregroundStyle(adaptiveTertiaryTextColor)
                                     TextField("Amount", text: $saleAmount)
+                                        .focused(saleAmountFocused)
                                         .keyboardType(.decimalPad)
                                         .font(.subheadline)
                                         .foregroundStyle(adaptiveTextColor)
