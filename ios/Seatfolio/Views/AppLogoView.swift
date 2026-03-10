@@ -3,7 +3,7 @@ import SwiftUI
 struct AppLogoView: View {
     let size: CGFloat
 
-    init(size: CGFloat = 120) {
+    init(size: CGFloat = 60) {
         self.size = size
     }
 
@@ -30,7 +30,7 @@ struct SpinningLogoView: View {
             Image("SeatfolioFullLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: size * 2.5, height: size * 2.5)
+                .frame(width: size * 1.25, height: size * 1.25)
                 .scaleEffect(isPulsing ? 1.06 : 0.94)
                 .opacity(isPulsing ? 1.0 : 0.7)
                 .animation(
@@ -56,7 +56,7 @@ struct BottomLogoView: View {
             .resizable()
             .renderingMode(.original)
             .aspectRatio(contentMode: .fit)
-            .frame(width: 400, height: 400)
+            .frame(width: 200, height: 200)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
     }

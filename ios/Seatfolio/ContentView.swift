@@ -32,7 +32,7 @@ struct ContentView: View {
             Image("SeatfolioFullLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 340, height: 340)
+                .frame(width: 170, height: 170)
                 .scaleEffect(spinRotation == 0 ? 0.92 : 1.05)
                 .opacity(spinRotation == 0 ? 0.75 : 1.0)
         }
