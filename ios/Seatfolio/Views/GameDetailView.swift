@@ -32,6 +32,10 @@ struct GameDetailView: View {
 
     private var opponentLogoURL: String? {
         guard let pass = store.activePass else { return nil }
+        if let teamId = game.opponentTeamId,
+           let url = LeagueData.logoURLForTeamId(teamId, leagueId: pass.leagueId) {
+            return url
+        }
         return LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: pass.leagueId)
     }
 
