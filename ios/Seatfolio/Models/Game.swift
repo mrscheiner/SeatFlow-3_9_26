@@ -11,6 +11,7 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
     var gameLabel: String
     var type: GameType
     var isHome: Bool
+    var opponentTeamId: Int?
 
     init(
         id: String = UUID().uuidString,
@@ -22,7 +23,8 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         gameNumber: Int = 0,
         gameLabel: String = "",
         type: GameType = .regular,
-        isHome: Bool = true
+        isHome: Bool = true,
+        opponentTeamId: Int? = nil
     ) {
         self.id = id
         self.date = date
@@ -34,6 +36,7 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         self.gameLabel = gameLabel
         self.type = type
         self.isHome = isHome
+        self.opponentTeamId = opponentTeamId
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +51,7 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         gameLabel = try container.decodeIfPresent(String.self, forKey: .gameLabel) ?? ""
         type = try container.decodeIfPresent(GameType.self, forKey: .type) ?? .regular
         isHome = try container.decodeIfPresent(Bool.self, forKey: .isHome) ?? true
+        opponentTeamId = try container.decodeIfPresent(Int.self, forKey: .opponentTeamId)
     }
 
     var formattedDate: String {

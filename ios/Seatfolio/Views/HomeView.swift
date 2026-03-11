@@ -468,6 +468,10 @@ struct RecentSaleCard: View {
 
     private var opponentLogoURL: String? {
         let effectiveLeague = sale.leagueId.isEmpty ? leagueId : sale.leagueId
+        if let game, let teamId = game.opponentTeamId,
+           let url = LeagueData.logoURLForTeamId(teamId, leagueId: effectiveLeague) {
+            return url
+        }
         if !sale.opponentAbbr.isEmpty {
             if let url = LeagueData.logoURLForAPIAbbr(sale.opponentAbbr, leagueId: effectiveLeague) {
                 return url

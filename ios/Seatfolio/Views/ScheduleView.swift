@@ -359,7 +359,11 @@ struct ScheduleGameCard: View {
     }
 
     private var opponentLogoURL: String? {
-        LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: leagueId)
+        if let teamId = game.opponentTeamId,
+           let url = LeagueData.logoURLForTeamId(teamId, leagueId: leagueId) {
+            return url
+        }
+        return LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: leagueId)
     }
 
     private var localTime: String {

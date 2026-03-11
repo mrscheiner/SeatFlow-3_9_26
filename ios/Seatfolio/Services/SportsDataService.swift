@@ -103,7 +103,7 @@ nonisolated class SportsDataService: @unchecked Sendable {
     private let hardcodedAPIKey = "9b42211a91c1440795cd6217baa9e334"
 
     nonisolated func fetchSchedule(leagueId: String, teamAbbr: String, season: String) async throws -> [Game] {
-        let apiKey = Config.SPORTSDATA_API_KEY.isEmpty ? hardcodedAPIKey : Config.SPORTSDATA_API_KEY
+        let apiKey = hardcodedAPIKey
         guard !apiKey.isEmpty else { throw ScheduleError.noAPIKey }
         guard let config = leagueConfigs[leagueId] else { throw ScheduleError.unsupportedLeague(leagueId) }
 
@@ -137,7 +137,7 @@ nonisolated class SportsDataService: @unchecked Sendable {
                 print("[SportsData] \(suffix.isEmpty ? "REG" : suffix): \(sdGames.count) total, \(homeGames.count) home games for \(teamAbbr)")
 
                 if homeGames.isEmpty && !sdGames.isEmpty {
-                    let allHomeTeams = Set(sdGames.map(\.resolvedHomeTeam)).sorted()
+                    let allHomeTeams = Set(sdGames.map { $0.resolvedHomeTeam }).sorted()
                     print("[SportsData] Available home teams: \(allHomeTeams.joined(separator: ", "))")
                 }
 
@@ -165,7 +165,8 @@ nonisolated class SportsDataService: @unchecked Sendable {
                         gameNumber: 0,
                         gameLabel: "",
                         type: gameType,
-                        isHome: true
+                        isHome: true,
+                        opponentTeamId: sdGame.awayTeamId
                     )
                 }
                 allGames.append(contentsOf: mapped)
@@ -209,7 +210,7 @@ nonisolated class SportsDataService: @unchecked Sendable {
                 do {
                     let (data, _) = try await URLSession.shared.data(from: url)
                     if let sdGames = try? JSONDecoder().decode([SDScheduleGame].self, from: data) {
-                        let allTeams = Set(sdGames.map(\.resolvedHomeTeam)).sorted()
+                        let allTeams = Set(sdGames.map { $0.resolvedHomeTeam }).sorted()
                         throw ScheduleError.noHomeGames("\(teamAbbr) (available: \(allTeams.joined(separator: ", ")))")
                     }
                 } catch let e as ScheduleError {

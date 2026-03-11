@@ -232,6 +232,10 @@ nonisolated struct LeagueData {
         return nil
     }
 
+    static func logoURLForTeamId(_ teamId: Int, leagueId: String) -> String? {
+        TeamIDLogoMap.logoURL(for: teamId, leagueId: leagueId)
+    }
+
     static func logoURLByName(_ name: String) -> String? {
         guard !name.isEmpty else { return nil }
         let lowered = name.lowercased()
