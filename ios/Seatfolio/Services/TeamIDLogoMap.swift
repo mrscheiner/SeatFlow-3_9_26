@@ -2,6 +2,17 @@ import Foundation
 
 nonisolated struct TeamIDLogoMap {
 
+    static func apiAbbr(for sportsDataTeamId: Int, leagueId: String) -> String? {
+        switch leagueId {
+        case "nhl": return nhlTeamIDs[sportsDataTeamId]
+        case "nba": return nbaTeamIDs[sportsDataTeamId]
+        case "nfl": return nflTeamIDs[sportsDataTeamId]
+        case "mlb": return mlbTeamIDs[sportsDataTeamId]
+        case "mls": return mlsTeamIDs[sportsDataTeamId]
+        default: return nil
+        }
+    }
+
     static func logoURL(for sportsDataTeamId: Int, leagueId: String) -> String? {
         switch leagueId {
         case "nhl":

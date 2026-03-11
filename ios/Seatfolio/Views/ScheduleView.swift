@@ -190,15 +190,8 @@ struct ScheduleView: View {
         VStack(alignment: .leading, spacing: 6) {
             if let pass = store.activePass {
                 HStack(spacing: 10) {
-                    if let team = LeagueData.team(for: pass.teamId), let url = URL(string: team.logoURL) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image.resizable().aspectRatio(contentMode: .fit)
-                            } else {
-                                Circle().fill(.white.opacity(0.3))
-                            }
-                        }
-                        .frame(width: 36, height: 36)
+                    if let logoAsset = TeamLogoHelper.assetNameForTeam(pass.teamId) {
+                        TeamLogoImage(assetName: logoAsset, size: 36)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(pass.teamName)
@@ -358,12 +351,12 @@ struct ScheduleGameCard: View {
         !sales.isEmpty && sales.allSatisfy { $0.status == .paid }
     }
 
-    private var opponentLogoURL: String? {
-        if let teamId = game.opponentTeamId,
-           let url = LeagueData.logoURLForTeamId(teamId, leagueId: leagueId) {
-            return url
-        }
-        return LeagueData.logoURLForAPIAbbr(game.opponentAbbr, leagueId: leagueId)
+    private var opponentLogoAsset: String? {
+        TeamLogoHelper.assetNameForOpponent(
+            opponentAbbr: game.opponentAbbr,
+            leagueId: leagueId,
+            opponentTeamId: game.opponentTeamId
+        )
     }
 
     private var localTime: String {
@@ -407,15 +400,8 @@ struct ScheduleGameCard: View {
 
                     VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 8) {
-                            if let logoURL = opponentLogoURL, let url = URL(string: logoURL) {
-                                AsyncImage(url: url) { phase in
-                                    if let image = phase.image {
-                                        image.resizable().aspectRatio(contentMode: .fit)
-                                    } else {
-                                        Circle().fill(adaptiveTextColor.opacity(0.3))
-                                    }
-                                }
-                                .frame(width: 28, height: 28)
+                            if let opponentLogoAsset {
+                                TeamLogoImage(assetName: opponentLogoAsset, size: 28)
                             }
 
                             if !game.displayLabel.isEmpty {

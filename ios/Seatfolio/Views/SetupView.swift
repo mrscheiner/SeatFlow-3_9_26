@@ -96,20 +96,7 @@ struct SetupView: View {
                             }
                         } label: {
                             VStack(spacing: 12) {
-                                AsyncImage(url: URL(string: league.logoURL)) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                    } else if phase.error != nil {
-                                        Image(systemName: "sportscourt.fill")
-                                            .font(.system(size: 48))
-                                            .foregroundStyle(Color(hex: "002B5C"))
-                                    } else {
-                                        ProgressView()
-                                    }
-                                }
-                                .frame(width: 100, height: 100)
+                                TeamLogoImage(assetName: TeamLogoHelper.assetNameForLeague(league.id), size: 100)
 
                                 Text(league.shortName)
                                     .font(.title2.bold())
@@ -144,30 +131,8 @@ struct SetupView: View {
                         }
                     } label: {
                         HStack(spacing: 14) {
-                            if !team.logoURL.isEmpty, let url = URL(string: team.logoURL) {
-                                AsyncImage(url: url) { phase in
-                                    if let image = phase.image {
-                                        image.resizable().aspectRatio(contentMode: .fit)
-                                    } else {
-                                        Circle()
-                                            .fill(Color(hex: team.primaryColor))
-                                            .overlay {
-                                                Text(team.abbreviation)
-                                                    .font(.caption.bold())
-                                                    .foregroundStyle(.white)
-                                            }
-                                    }
-                                }
-                                .frame(width: 44, height: 44)
-                            } else {
-                                Circle()
-                                    .fill(Color(hex: team.primaryColor))
-                                    .frame(width: 44, height: 44)
-                                    .overlay {
-                                        Text(team.abbreviation)
-                                            .font(.caption.bold())
-                                            .foregroundStyle(.white)
-                                    }
+                            if let league = selectedLeague {
+                                TeamLogoImage(league: league.id, teamID: team.id, size: 44)
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
