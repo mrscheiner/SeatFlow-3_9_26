@@ -379,7 +379,20 @@ struct ScheduleGameCard: View {
         if !game.opponentAbbr.isEmpty {
             return LeagueData.teamNameForAPIAbbr(game.opponentAbbr, leagueId: leagueId)
         }
+        if let team = LeagueData.team(for: game.opponent) {
+            return "\(team.city) \(team.name)"
+        }
         return game.opponent
+    }
+    
+    private var fullHomeTeamName: String {
+        if !game.homeAbbr.isEmpty {
+            return LeagueData.teamNameForAPIAbbr(game.homeAbbr, leagueId: leagueId)
+        }
+        if let team = LeagueData.team(for: game.homeTeam) {
+            return "\(team.city) \(team.name)"
+        }
+        return game.homeTeam
     }
 
     var body: some View {

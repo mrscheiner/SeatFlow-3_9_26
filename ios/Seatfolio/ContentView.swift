@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(DataStore.self) private var store
-    @State private var isLaunching: Bool = true
+
+    @State private var isLaunching = true
     @State private var splashRotation: Double = 0
 
     var body: some View {
@@ -15,10 +16,11 @@ struct ContentView: View {
                 SetupView()
             }
         }
-        .animation(.easeInOut(duration: 0.35), value: isLaunching)
         .task {
             store.restoreLastActivePass()
+
             try? await Task.sleep(for: .seconds(1.5))
+
             withAnimation {
                 isLaunching = false
             }
@@ -27,8 +29,9 @@ struct ContentView: View {
 
     private var launchScreen: some View {
         ZStack {
-            Color(hex: "001F3F")
+            Color(red: 0/255, green: 31/255, blue: 63/255)
                 .ignoresSafeArea()
+
             Image("SeatfolioFullLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)

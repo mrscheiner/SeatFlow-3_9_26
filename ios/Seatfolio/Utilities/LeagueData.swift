@@ -1,6 +1,8 @@
 import Foundation
 
 nonisolated struct LeagueData {
+    // ...existing code...
+
     static let allLeagues: [League] = [nhl, nba, nfl, mlb, mls]
 
     static let nhl = League(
@@ -198,17 +200,14 @@ nonisolated struct LeagueData {
         ]
     )
 
-    static func league(for id: String) -> League? {
-        allLeagues.first { $0.id == id }
-    }
 
     static func team(for teamId: String) -> Team? {
         allLeagues.flatMap(\.teams).first { $0.id == teamId }
     }
 
     static func teamByAPIAbbr(_ abbr: String, leagueId: String) -> Team? {
-        guard let league = league(for: leagueId) else { return nil }
-        return league.teams.first { $0.apiAbbr == abbr }
+        guard let leagueObj = league(for: leagueId) else { return nil }
+        return leagueObj.teams.first { $0.apiAbbr == abbr }
     }
 
     static func teamNameForAPIAbbr(_ abbr: String, leagueId: String) -> String {
@@ -250,5 +249,9 @@ nonisolated struct LeagueData {
             }
         }
         return nil
+    }
+
+    static func league(for leagueId: String) -> League? {
+        allLeagues.first { $0.id == leagueId }
     }
 }

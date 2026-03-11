@@ -74,10 +74,15 @@ struct RewindView: View {
             }
             .alert("Restore Backup?", isPresented: $showRestoreAlert) {
                 Button("Restore", role: .destructive) {
+                  
+                    
                     guard let backup = selectedBackup else { return }
-                    store.restoreBackup(backup)
+      
                     let rewindMsg = restoreMessageFromLabel(backup.label)
-                    store.showToastMessage(rewindMsg)
+                    
+                    store.restoreBackup(store.seasonPasses, events: store.appEvents)
+                
+
                     dismiss()
                 }
                 Button("Cancel", role: .cancel) { }

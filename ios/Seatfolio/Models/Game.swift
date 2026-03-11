@@ -5,6 +5,8 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
     var date: Date
     var opponent: String
     var opponentAbbr: String
+    var homeTeam: String
+    var homeAbbr: String
     var venueName: String
     var time: String
     var gameNumber: Int
@@ -18,6 +20,8 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         date: Date,
         opponent: String,
         opponentAbbr: String = "",
+        homeTeam: String = "",
+        homeAbbr: String = "",
         venueName: String = "",
         time: String = "",
         gameNumber: Int = 0,
@@ -30,6 +34,8 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         self.date = date
         self.opponent = opponent
         self.opponentAbbr = opponentAbbr
+        self.homeTeam = homeTeam
+        self.homeAbbr = homeAbbr
         self.venueName = venueName
         self.time = time
         self.gameNumber = gameNumber
@@ -45,6 +51,8 @@ nonisolated struct Game: Codable, Identifiable, Hashable, Sendable {
         date = try container.decode(Date.self, forKey: .date)
         opponent = try container.decode(String.self, forKey: .opponent)
         opponentAbbr = try container.decodeIfPresent(String.self, forKey: .opponentAbbr) ?? ""
+        homeTeam = try container.decodeIfPresent(String.self, forKey: .homeTeam) ?? ""
+        homeAbbr = try container.decodeIfPresent(String.self, forKey: .homeAbbr) ?? ""
         venueName = try container.decodeIfPresent(String.self, forKey: .venueName) ?? ""
         time = try container.decodeIfPresent(String.self, forKey: .time) ?? ""
         gameNumber = try container.decodeIfPresent(Int.self, forKey: .gameNumber) ?? 0
